@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Саволномаи тестӣ аз фанни география</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef4f8;
+    color: #17324d;
+}
+
+header {
+    background: #087e65;
+    color: white;
+    text-align: center;
+    padding: 22px 12px;
+}
+
+header h1 {
+    font-size: 23px;
+    margin: 0 0 8px;
+}
+
+header p {
+    margin: 0;
+}
+
+main {
+    max-width: 600px;
+    margin: auto;
+    padding: 16px;
+}
+
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 12px #00000012;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+button, input {
+    width: 100%;
+    padding: 14px;
+    margin: 6px 0;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+button {
+    background: #087e65;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:active {
+    opacity: 0.8;
+}
+
+.secondary {
+    background: #e0eee9;
+    color: #087e65;
+}
+
+.answer {
+    background: #eaf1f5;
+    color: #17324d;
+    text-align: left;
+}
+
+.answer.correct {
+    background: #c8f3d5;
+    color: #155724;
+}
+
+.answer.wrong {
+    background: #ffd9d9;
+    color: #8b0000;
+}
+
+.hidden {
+    display: none;
+}
+
+#progress {
+    background: #dce8e3;
+    height: 9px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+#bar {
+    background: #087e65;
+    height: 100%;
+    width: 0%;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #61717e;
+    font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>📚 Саволномаи тестӣ</h1>
+    <p>Аз фанни география 🇹🇯</p>
+</header>
+
+<main>
+
+<section id="home" class="card">
+    <h2>Хуш омадед!</h2>
+    <p>Синфи худро интихоб кунед:</p>
+    <div id="classes"></div>
+    <button class="secondary" onclick="showProfile()">
+        👤 Профили шахсӣ
+    </button>
+</section>
+
+<section id="quarters" class="card hidden">
+    <h2 id="classTitle"></h2>
+    <p>Чоряки дилхоҳро интихоб кунед:</p>
+    <div id="quarterButtons"></div>
+    <button class="secondary" onclick="goHome()">⬅️ Бозгашт</button>
+</section>
+
+<section id="menu" class="card hidden">
+    <h2 id="testTitle"></h2>
+    <p>Навъи санҷишро интихоб кунед:</p>
+    <button onclick="startTest()">📝 Оғози тест</button>
+    <button class="secondary" onclick="goQuarters()">⬅️ Бозгашт</button>
+</section>
+
+<section id="quiz" class="card hidden">
+    <p id="questionNumber"></p>
+
+    <div id="progress"><div id="bar"></div></div>
+
+    <h2 id="question"></h2>
+
+    <div id="answers"></div>
+
+    <p id="feedback"></p>
+
+    <button id="nextButton" class="hidden" onclick="nextQuestion()">
+        Саволи навбатӣ ➡️
+    </button>
+</section>
+
+<section id="result" class="card hidden">
+    <h2>🏆 Натиҷаи тест</h2>
+    <h3 id="score"></h3>
+    <p id="message"></p>
+    <button onclick="startTest()">🔄 Аз нав гузаштан</button>
+    <button class="secondary" onclick="goHome()">🏠 Саҳифаи асосӣ</button>
+</section>
+
+<section id="profile" class="card hidden">
+    <h2>👤 Профили шахсӣ</h2>
+    <label for="username">Номи худро нависед:</label>
+    <input id="username" placeholder="Масалан: Маҳмасаид">
+    <button onclick="saveProfile()">💾 Нигоҳ доштани ном</button>
+    <h3>📊 Таърихи натиҷаҳо</h3>
+    <div id="history"></div>
+    <button class="secondary" onclick="goHome()">⬅️ Бозгашт</button>
+</section>
+
+</main>
+
+<footer>
+    Саволномаи таълимии география • Тоҷикистон
+</footer>
+
+<script>
+const sampleQuestions = [
+    {
+        q: "География чиро меомӯзад?",
+        a: ["Табиат ва аҳолии Замин", "Танҳо ҳайвонот",
+            "Танҳо ададҳо", "Танҳо забон"],
+        c: 0
+    },
+    {
+        q: "Пойтахти Тоҷикистон кадом шаҳр аст?",
+        a: ["Хуҷанд", "Душанбе", "Кӯлоб", "Бохтар"],
+        c: 1
+    },
+    {
+        q: "Тоҷикистон дар кадом қитъа ҷойгир аст?",
+        a: ["Африқо", "Австралия", "Осиё", "Амрико"],
+        c: 2
+    },
+    {
+        q: "Кадомаш уқёнус аст?",
+        a: ["Уқёнуси Ором", "Кӯли Сарез", "Дарёи Вахш", "Кӯли Искандаркӯл"],
+        c: 0
+    },
+    {
+        q: "Баландтарин қаторкӯҳи Тоҷикистон кадом аст?",
+        a: ["Алп", "Ҳимолой", "Помир", "Қафқоз"],
+        c: 2
+    },
+    {
+        q: "Об аз сатҳи Замин ба атмосфера чӣ гуна мегузарад?",
+        a: ["Бухоршавӣ", "Яхбандӣ", "Заминларза", "Шамол"],
+        c: 0
+    },
+    {
+        q: "Харита чист?",
+        a: ["Тасвири хурдкардашудаи сатҳи Замин", "Китоби шеър",
+            "Асбоби мусиқӣ", "Навъи растанӣ"],
+        c: 0
+    },
+    {
+        q: "Кадомаш дарёи Тоҷикистон аст?",
+        a: ["Нил", "Амазонка", "Вахш", "Дунай"],
+        c: 2
+    },
+    {
+        q: "Офтоб аз кадом тараф мебарояд?",
+        a: ["Шимол", "Ҷануб", "Шарқ", "Ғарб"],
+        c: 2
+    },
+    {
+        q: "Кадомаш кӯли Тоҷикистон аст?",
+        a: ["Байкал", "Сарез", "Виктория", "Женева"],
+        c: 1
+    },
+    {
+        q: "Қитъаи калонтарини Замин кадом аст?",
+        a: ["Аврупо", "Осиё", "Австралия", "Антарктида"],
+        c: 1
+    },
+    {
+        q: "Кадом асбоб самти шимолро нишон медиҳад?",
+        a: ["Термометр", "Қутбнамо", "Соат", "Тарозу"],
+        c: 1
+    },
+    {
+        q: "Замин дар атрофи чӣ давр мезанад?",
+        a: ["Моҳ", "Марс", "Офтоб", "Қутбнамо"],
+        c: 2
+    },
+    {
+        q: "Кадомаш биёбон аст?",
+        a: ["Саҳрои Кабир", "Помир", "Ҳимолой", "Амазонка"],
+        c: 0
+    },
+    {
+        q: "Ҳаворо бо кадом асбоб чен мекунанд?",
+        a: ["Термометр", "Қутбнамо", "Микроскоп", "Телескоп"],
+        c: 0
+    },
+    {
+        q: "Кадомаш шакли сатҳи Замин аст?",
+        a: ["Кӯҳ", "Китоб", "Қалам", "Миз"],
+        c: 0
+    },
+    {
+        q: "Кадом газ барои нафаскашии инсон зарур аст?",
+        a: ["Оксиген", "Гелий", "Неон", "Ҳидроген"],
+        c: 0
+    },
+    {
+        q: "Самти муқобили шимол кадом аст?",
+        a: ["Шарқ", "Ғарб", "Ҷануб", "Шимолу шарқ"],
+        c: 2
+    },
+    {
+        q: "Кадомаш материк аст?",
+        a: ["Африқо", "Баҳри Сиёҳ", "Дарёи Панҷ", "Кӯли Сарез"],
+        c: 0
+    },
+    {
+        q: "Кадом қабати Замин ҳаворо дар бар мегирад?",
+        a: ["Атмосфера", "Гидросфера", "Литосфера", "Ядро"],
+        c: 0
+    },
+    {
+        q: "Кадомаш манбаи оби ширин аст?",
+        a: ["Пирях", "Уқёнус", "Баҳри шӯр", "Оби шӯр"],
+        c: 0
+    },
+    {
+        q: "Пирях чист?",
+        a: ["Массаи калони ях", "Кӯҳи оташфишон", "Ҷангали зич", "Биёбон"],
+        c: 0
+    },
+    {
+        q: "Кадомаш шаҳри Тоҷикистон аст?",
+        a: ["Самарқанд", "Душанбе", "Тошканд", "Кобул"],
+        c: 1
+    },
+    {
+        q: "Кадомаш қитъаи Замин нест?",
+        a: ["Аврупо", "Осиё", "Уқёнуси Ором", "Африқо"],
+        c: 2
+    },
+    {
+        q: "Дар харита барои чӣ аломатҳо истифода мешаванд?",
+        a: ["Барои нишон додани объектҳо", "Барои пухтани хӯрок",
+            "Барои чен кардани вақт", "Барои шунидани овоз"],
+        c: 0
+    }
+];
+
+let selectedClass = 5;
+let selectedQuarter = 1;
+let questions = [];
+let current = 0;
+let points = 0;
+let locked = false;
+
+function show(id) {
+    document.querySelectorAll("main section").forEach(section => {
+        section.classList.add("hidden");
+    });
+    document.getElementById(id).classList.remove("hidden");
+}
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function makeClasses() {
+    const box = document.getElementById("classes");
+    box.innerHTML = "";
+
+    for (let i = 5; i <= 11; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = "Синфи " + i;
+        btn.onclick = () => chooseClass(i);
+        box.appendChild(btn);
+    }
+}
+
+function chooseClass(n) {
+    selectedClass = n;
+    document.getElementById("classTitle").textContent =
+        "Синфи " + n;
+
+    const box = document.getElementById("quarterButtons");
+    box.innerHTML = "";
+
+    for (let i = 1; i <= 4; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = "Чоряки " + i;
+        btn.onclick = () => chooseQuarter(i);
+        box.appendChild(btn);
+    }
+
+    show("quarters");
+}
+
+function chooseQuarter(n) {
+    selectedQuarter = n;
+    document.getElementById("testTitle").textContent =
+        "География — синфи " + selectedClass +
+        ", чоряки " + selectedQuarter;
+
+    show("menu");
+}
+
+function startTest() {
+    questions = shuffle(sampleQuestions.map(q => {
+        const choices = q.a.map((text, index) => ({
+            text: text,
+            correct: index === q.c
+        }));
+
+        shuffle(choices);
+
+        return {
+            q: q.q,
+            a: choices
+        };
+    }));
+
+    current = 0;
+    points = 0;
+    show("quiz");
+    displayQuestion();
+}
+
+function displayQuestion() {
+    locked = false;
+
+    const q = questions[current];
+
+    document.getElementById("questionNumber").textContent =
+        "Саволи " + (current + 1) + " аз " + questions.length;
+
+    document.getElementById("bar").style.width =
+        (current / questions.length * 100) + "%";
+
+    document.getElementById("question").textContent = q.q;
+    document.getElementById("feedback").textContent = "";
+
+    const box = document.getElementById("answers");
+    box.innerHTML = "";
+
+    document.getElementById("nextButton").classList.add("hidden");
+
+    q.a.forEach(answer => {
+        const btn = document.createElement("button");
+        btn.className = "answer";
+        btn.textContent = answer.text;
+
+        btn.onclick = () => checkAnswer(btn, answer.correct);
+
+        box.appendChild(btn);
+    });
+}
+
+function checkAnswer(button, correct) {
+    if (locked) return;
+    locked = true;
+
+    if (correct) {
+        points++;
+        button.classList.add("correct");
+        document.getElementById("feedback").textContent =
+            "✅ Офарин! Ҷавоби дуруст.";
+    } else {
+        button.classList.add("wrong");
+        document.getElementById("feedback").textContent =
+            "❌ Ҷавоб нодуруст аст.";
+    }
+
+    document.querySelectorAll("#answers button").forEach(btn => {
+        btn.disabled = true;
+    });
+
+    if (current < questions.length - 1) {
+        document.getElementById("nextButton").classList.remove("hidden");
+        document.getElementById("nextButton").textContent =
+            "Саволи навбатӣ ➡️";
+    } else {
+        document.getElementById("nextButton").classList.remove("hidden");
+        document.getElementById("nextButton").textContent =
+            "Натиҷаро дидан 🏆";
+    }
+}
+
+function nextQuestion() {
+    if (current < questions.length - 1) {
+        current++;
+        displayQuestion();
+    } else {
+        finishTest();
+    }
+}
+
+function finishTest() {
+    document.getElementById("bar").style.width = "100%";
+
+    document.getElementById("score").textContent =
+        points + " аз " + questions.length + " хол";
+
+    const percent = Math.round(points / questions.length * 100);
+
+    document.getElementById("message").textContent =
+        "Натиҷа: " + percent + "%";
+
+    const history = JSON.parse(
+        localStorage.getItem("geoHistory") || "[]"
+    );
+
+    history.unshift({
+        className: selectedClass,
+        quarter: selectedQuarter,
+        score: points,
+        total: questions.length,
+        date: new Date().toLocaleDateString("tg-TJ")
+    });
+
+    localStorage.setItem("geoHistory", JSON.stringify(history));
+
+    show("result");
+}
+
+function saveProfile() {
+    const name = document.getElementById("username").value.trim();
+
+    if (!name) {
+        alert("Лутфан номи худро нависед!");
+        return;
+    }
+
+    localStorage.setItem("geoName", name);
+    alert("Ном нигоҳ дошта шуд!");
+    showProfile();
+}
+
+function showProfile() {
+    document.getElementById("username").value =
+        localStorage.getItem("geoName") || "";
+
+    const history = JSON.parse(
+        localStorage.getItem("geoHistory") || "[]"
+    );
+
+    const box = document.getElementById("history");
+    box.innerHTML = "";
+
+    if (history.length === 0) {
+        box.textContent = "Ҳоло натиҷаи тест сабт нашудааст.";
+    } else {
+        history.slice(0, 20).forEach(item => {
+            const p = document.createElement("p");
+            p.textContent =
+                "Синфи " + item.className +
+                ", чоряки " + item.quarter +
+                " — " + item.score + "/" + item.total +
+                " хол (" + item.date + ")";
+            box.appendChild(p);
+        });
+    }
+
+    show("profile");
+}
+
+function goHome() {
+    show("home");
+}
+
+function goQuarters() {
+    show("quarters");
+}
+
+makeClasses();
+</script>
+
+</body>
+  </html>
